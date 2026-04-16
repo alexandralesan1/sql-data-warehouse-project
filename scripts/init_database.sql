@@ -1,27 +1,36 @@
--- Create Database 'DataWarehouse'
+USE master;
+GO
 
+IF EXISTS (SELECT 1 FROM sys.databases WHERE name = 'DataWarehouse')
+BEGIN
+    ALTER DATABASE DataWarehouse SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+    DROP DATABASE DataWarehouse;
+END;
+GO
 
-use master;
-go
--- Drop and create the 'DataWarehouse' database
-if exists(select 1 from sys.databases where name ='DataWarehouse')
-begin 
-  alter database DataWarehouse set single_user with rollback immediate;
-  drop database DataWarehouse;
-end;
-go
-  
-create database DataWarehouse;
+IF DB_ID('DataWarehouse') IS NULL
+BEGIN
+    CREATE DATABASE DataWarehouse;
+END;
+GO
 
-use DataWarehouse;
+USE DataWarehouse;
+GO
 
--- First Step
--- Create schemas for layers
--- for each layer we create a schema
+IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = 'bronze')
+BEGIN
+    EXEC('CREATE SCHEMA bronze');
+END;
+GO
 
-create schema bronze;
-go -- separated batches when working with multiple SQL statements
-create schema silver;
-go
-create schema gold;
-go
+IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = 'silver')
+BEGIN
+    EXEC('CREATE SCHEMA silver');
+END;
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = 'gold')
+BEGIN
+    EXEC('CREATE SCHEMA gold');
+END;
+GO
